@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogOverlay,
@@ -9,8 +9,30 @@ import {
 import { Button } from "./ui/button";
 import axios from "axios";
 
-const CombineRulesDialog = ({ open, onClose, rules, onCombine }) => {
+const CombineRulesDialog = ({ open, onClose, onCombine }) => {
+  const [rules, setRules] = useState([]);
   const [selectedRuleIds, setSelectedRuleIds] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state for rules
+
+  // Fetch the rules when the dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchRules();
+    }
+  }, [open]);
+
+  const fetchRules = async () => {
+    setLoading(true); // Start loading
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rules/get-all-rules`);
+      setRules(response.data.rules);
+    } catch (error) {
+      console.error("Error fetching rules:", error);
+      alert("Failed to fetch rules.");
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
   const handleCheckboxChange = (ruleId) => {
     setSelectedRuleIds((prev) => {
@@ -33,18 +55,14 @@ const CombineRulesDialog = ({ open, onClose, rules, onCombine }) => {
     }
 
     try {
-      console.log("id's : ",selectedRuleIds);
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rules/combine`, {
         ruleIds: selectedRuleIds,
       });
-      console.log("res : ",response);
       if (response.status === 200) {
-        console.log("success");
         alert("Rules combined successfully!");
-        onCombine(response.data.combinedRule); // Pass the combined rule to the parent component
-        onClose(); // Close the dialog
+        onCombine(response.data.combinedRule); 
+        onClose(); 
       } else {
-        // Handle unexpected status
         alert("Failed to combine rules: " + (response.data.message || "Unknown error"));
       }
     } catch (error) {
@@ -58,38 +76,46 @@ const CombineRulesDialog = ({ open, onClose, rules, onCombine }) => {
       <DialogOverlay />
       <DialogContent>
         <DialogTitle>Combine Two Rules</DialogTitle>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Please select exactly two rules to combine.
-        </p>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <div className="max-h-[40vh] overflow-y-auto rounded-md p-2 flex flex-col gap-2">
-            {" "}
-            {/* Scrollable area for rules */}
-            {rules.map((rule) => (
-              <label
-                key={rule._id}
-                className="p-2 flex items-center gap-2 text-sm shadow"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedRuleIds.includes(rule._id)}
-                  onChange={() => handleCheckboxChange(rule._id)}
-                  className="mr-2 text-sm"
-                />
-                <span className="text-gray-900 dark:text-gray-100">
-                  {rule.ruleString} (ID: {rule._id})
-                </span>
-              </label>
-            ))}
+        {loading ? (
+         
+          <div className="flex justify-center items-center">
+            <div className="loader border-t-4 border-blue-500 rounded-full w-8 h-8 animate-spin"></div>
+            <span className="ml-2"></span>
           </div>
-          <Button
-            type="submit"
-            disabled={selectedRuleIds.length !== 2}
-            className="mt-4"
-          >
-            Combine Selected Rules
-          </Button>
-        </form>
+        ) : (
+          <>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Please select exactly two rules to combine.
+            </p>
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+              <div className="max-h-[40vh] overflow-y-auto rounded-md p-2 flex flex-col gap-2">
+                {rules.map((rule) => (
+                  <label
+                    key={rule._id}
+                    className="p-2 flex items-center gap-2 text-sm shadow"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedRuleIds.includes(rule._id)}
+                      onChange={() => handleCheckboxChange(rule._id)}
+                      className="mr-2 text-sm"
+                    />
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {rule.ruleString} (ID: {rule._id})
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <Button
+                type="submit"
+                disabled={selectedRuleIds.length !== 2}
+                className="mt-4"
+              >
+                Combine Selected Rules
+              </Button>
+            </form>
+          </>
+        )}
         <DialogClose />
       </DialogContent>
     </Dialog>

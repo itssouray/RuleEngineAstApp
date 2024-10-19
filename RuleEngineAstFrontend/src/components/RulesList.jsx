@@ -10,6 +10,7 @@ const RulesList = () => {
   const [selectedRule, setSelectedRule] = useState(null);
   const [selectedViewRule, setSelectedViewRule] = useState(null);
   const [isViewDialogOpen, setViewDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true); 
 
   const fetchRules = async () => {
     try {
@@ -19,6 +20,8 @@ const RulesList = () => {
       setRules(response.data.rules);
     } catch (error) {
       console.error("Error fetching rules:", error);
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -40,10 +43,7 @@ const RulesList = () => {
   };
 
   const handleView = (ruleId) => {
-    console.log(ruleId);
-    
     const ruleToView = rules.find((rule) => rule._id === ruleId);
-    console.log("Rule to view:", ruleToView);
     if (ruleToView) {
       setSelectedViewRule(ruleToView);
       setViewDialogOpen(true);
@@ -63,6 +63,10 @@ const RulesList = () => {
   useEffect(() => {
     fetchRules();
   }, []);
+
+  if (loading) {
+    return <div className="loader"></div>;
+  }
 
   return (
     <>

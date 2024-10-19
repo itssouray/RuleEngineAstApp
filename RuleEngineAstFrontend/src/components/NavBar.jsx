@@ -98,13 +98,7 @@ const Navbar = ({
             >
               Evaluate Rule
             </button>
-            <Link
-              to="/rules"
-              className="hover:text-gray-400"
-              onClick={toggleMobileMenu}
-            >
-              Rules List
-            </Link>
+           
             <Link onClick={onOpenCombineDialog} className="hover:text-gray-400">
               Combine Rule
             </Link>
