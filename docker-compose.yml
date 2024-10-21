@@ -1,3 +1,4 @@
+
 services:
   backend:
     build: ./RuleEngineAstBackend
@@ -17,3 +18,4 @@ services:
       - ./RuleEngineAstFrontend/.env
     depends_on:
       - backend      
+    
