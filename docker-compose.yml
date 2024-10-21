@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./RuleEngineAstBackend
+    container_name: RuleEngineAstBackend
+    ports:
+      - "7000:7000"   # Exposes port 7000 for the backend
+    env_file:          # Load the environment variables from the backend .env file
+      - ./RuleEngineAstBackend/.env
+   
+
+  frontend:
+    build: ./RuleEngineAstFrontend
+    container_name: RuleEngineAstFrontend
+    ports:
+      - "80:80"        # Exposes port 80 for the frontend (served by Nginx)
+    env_file:          # Load the environment variables from the frontend .env file
+      - ./RuleEngineAstFrontend/.env
+    depends_on:
+      - backend        # Corrected service name to "backend"

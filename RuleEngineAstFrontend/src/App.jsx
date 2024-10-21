@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './/components/theme-provider';
-import Navbar from './components/Navbar';
+import { ThemeProvider } from './components/theme-provider';
+import Navbar from './components/NavBar';
 import Home from './pages/Home';
 import RuleDialog from './components/RuleDialog';
 import UserInputDialog from './components/UserInputDialog';
